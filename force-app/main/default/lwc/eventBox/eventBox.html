@@ -1,0 +1,21 @@
+<template>
+  <template for:each={dailyEvents} for:item="each">
+    <div
+      class="evbox"
+      key={each.key}
+      onclick={handleNavigation}
+      data-key={each.key}
+    >
+      <div class="leftbar"></div>
+      <div class="evcon">
+        <div class="timespan">
+          <p>{each.startTime}</p>
+          <p>{each.endTime}</p>
+        </div>
+        <div class="message">
+          <p>{each.eventMessage}</p>
+        </div>
+      </div>
+    </div>
+  </template>
+</template>

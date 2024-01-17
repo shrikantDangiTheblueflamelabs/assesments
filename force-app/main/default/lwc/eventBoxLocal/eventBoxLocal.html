@@ -1,0 +1,24 @@
+<template>
+  <lightning-input 
+    type="text"
+    label="Enter some text"
+    oninput={handleInput}
+    oncommit={handleInput}
+    onclick={handleInput}
+    onblur={handleInput}
+  ></lightning-input>
+  <template for:each={dailyEvents} for:item="each">
+    <div class="evbox" key={each.key}>
+      <div class="leftbar"></div>
+      <div class="evcon border">
+        <div class="timespan border">
+          <p>{each.startTime}</p>
+          <p>{each.endTime}</p>
+        </div>
+        <div class="message border">
+          <p>{each.eventMessage}</p>
+        </div>
+      </div>
+    </div>
+  </template>
+</template>

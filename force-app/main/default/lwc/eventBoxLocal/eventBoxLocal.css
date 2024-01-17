@@ -1,0 +1,36 @@
+.evbox {
+  margin-top: 5px;
+  background-color: rgba(59, 59, 59, 1);
+  color: white;
+
+  /* dummy */
+  min-height: 60px;
+  min-width: 300px;
+
+  display: flex;
+}
+.leftbar {
+  background-color: rgba(0, 120, 215, 1);
+
+  /* dummy */
+  min-height: 5px;
+  min-width: 10px;
+}
+
+.evcon {
+  background-color: rgba(96, 96, 95, 1);
+  padding: 4px 4px;
+  display: flex;
+  flex-grow: 1;
+}
+
+.timespan {
+}
+.message {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.border{
+  border: red 2px solid;
+}

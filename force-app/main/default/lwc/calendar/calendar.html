@@ -1,0 +1,44 @@
+<template>
+  <div class="container">
+    <div class="current-time">{currentTime}</div>
+    <div class="today-date">{todayDateDisplay}</div>
+    <hr />
+    <div class="calendar-header">
+      <span class="text">{monthDisplay}, {yearDisplay}</span>
+      <lightning-icon
+        icon-name="utility:chevronup"
+        onclick={genPrevMonth}
+        class="icon1"
+      ></lightning-icon>
+      <lightning-icon
+        icon-name="utility:chevrondown"
+        onclick={genNextMonth}
+        class="icon2"
+      ></lightning-icon>
+    </div>
+
+    <div class="calendar">
+      <template for:each={weekDays} for:item="weekday">
+        <span key={weekday}>{weekday}</span>
+      </template>
+
+      <template for:each={calendarDates} for:item="adate">
+        <span
+          class={adate.class}
+          key={adate.key}
+          onclick={handleDateClick}
+          ondblclick={handleDateDblClick}
+          data-date={adate.fulldate}
+        >
+          {adate.date}
+        </span>
+      </template>
+    </div>
+    <hr />
+
+    <div class="events">
+      <div class="date-selected">{dayDateDisplay}</div>
+      <c-event-box date-selected={dateSelected}></c-event-box>
+    </div>
+  </div>
+</template>

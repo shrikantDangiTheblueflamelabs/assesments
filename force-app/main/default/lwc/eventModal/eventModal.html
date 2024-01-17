@@ -1,0 +1,74 @@
+<template>
+    <lightning-card icon-name="utility:event" variant="base" title="Event">
+      <div class="slds-p-around_medium">
+        <lightning-combobox
+          name="subject"
+          label="Subject"
+          placeholder="Select Progress"
+          options={subjectOptions}
+          class="subject"
+        ></lightning-combobox>
+
+        <div class="dt-box slds-var-m-top_medium">
+          <p>Start</p>
+          <div class="slds-grid">
+            <lightning-input
+              type="datetime"
+              name="startdate"
+              class="slds-col startdate"
+              onchange={handleChange}
+              label="Start"
+              value={defaultStart}
+              required
+            ></lightning-input>
+          </div>
+        </div>
+        <div class="dt-box slds-var-m-top_medium">
+          <p>End</p>
+          <div class="slds-grid">
+            <lightning-input
+              type="datetime"
+              name="enddate"
+              label="End"
+              class="slds-col enddate"
+              onchange={handleChange}
+              value={defaultEnd}
+              required
+            ></lightning-input>
+          </div>
+        </div>
+
+        <lightning-input
+          type="checkbox"
+          label="All-Day Event"
+          name="alldaycheck"
+          class="slds-var-m-top_medium alldaycheck"
+        ></lightning-input>
+
+        <lightning-combobox
+          name="contactname"
+          label="Name"
+          placeholder="Select Contact Name"
+          options={contactOptions}
+          class="slds-var-m-top_medium contactname"
+        ></lightning-combobox>
+
+        <lightning-combobox
+          name="relatedaccount"
+          label="Related To"
+          placeholder="Select Related Account"
+          options={accountOptions}
+          class="slds-var-m-top_medium relatedaccount"
+        ></lightning-combobox>
+
+        <div class="slds-var-m-top_medium submit-button">
+          <lightning-button
+            variant="brand"
+            label="Submit Event"
+            onclick={submitEvent}
+          ></lightning-button>
+        </div>
+        <lightning-formatted-text class="error"></lightning-formatted-text>
+      </div>
+    </lightning-card>
+</template>
