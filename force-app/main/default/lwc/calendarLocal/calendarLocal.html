@@ -4,7 +4,7 @@
     <div class="today-date">{todayDateDisplay}</div>
     <hr />
     <div class="calendar-header">
-      <div class="header-text" onclick={chooseMonth}>{monthDisplay}, {yearDisplay}</div>
+      <div class="header-text" onclick={chooseMonthYear}>{headerText}</div>
       <lightning-icon
         icon-name="utility:chevronup"
         onclick={handleUp}
@@ -17,27 +17,44 @@
       ></lightning-icon>
     </div>
 
-    <div class="calendar">
-      <template for:each={weekDays} for:item="weekday">
-        <span key={weekday} class="current-month">{weekday}</span>
-      </template>
+    <template if:true={chooseDate}>
+      <div class="monthly-calendar">
+        <template for:each={weekDays} for:item="weekday">
+          <span key={weekday} class="current-month">{weekday}</span>
+        </template>
 
-      <template for:each={calendarDates} for:item="adate">
-        <span
-          class={adate.class}
-          key={adate.key}
-          onclick={handleDateClick}
-          ondblclick={handleDateDblClick}
-          data-date={adate.fulldate}
-        >
-          {adate.date}
-        </span>
-      </template>
-    </div>
+        <template for:each={calendarEntries} for:item="adate">
+          <span
+            class={adate.class}
+            key={adate.key}
+            onclick={handleCalendarEntryClick}
+            ondblclick={handleDateDblClick}
+            data-date={adate.fulldate}
+          >
+            {adate.date}
+          </span>
+        </template>
+      </div>
+    </template>
+
+    <template if:false={chooseDate}>
+      <div class="other-calendar">
+        <template for:each={calendarEntries} for:item="aMonth">
+          <span
+            class={aMonth.class}
+            key={aMonth.key}
+            onclick={handleCalendarEntryClick}
+            data-month={aMonth.month}
+            data-year={aMonth.year}
+          >
+            {aMonth.value}
+          </span>
+        </template>
+      </div>
+    </template>
     <hr />
-
     <div class="events">
-      <div class="date-selected">{dayDateDisplay}</div>
+      <div class="date-selected">{selectedDayAndDateDisplay}</div>
       <c-event-box date-selected={dateSelected}></c-event-box>
     </div>
   </div>

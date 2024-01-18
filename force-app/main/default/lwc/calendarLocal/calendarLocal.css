@@ -22,7 +22,7 @@ hr {
 }
 .header-text {
   grid-column-start: 1;
-  grid-column-end: 5;
+  grid-column-end: 6;
   text-align: left;
 }
 .icon1 {
@@ -33,12 +33,20 @@ hr {
   grid-column-start: 7;
   grid-column-end: 8;
 }
-.calendar {
+.monthly-calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-auto-rows: auto;
   gap: 5px;
 }
+
+.other-calendar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: auto;
+  gap: 5px;
+}
+
 span {
   /* display: block; */
   padding: 5px;
@@ -48,11 +56,7 @@ span {
   box-sizing: border-box;
 }
 
-.header-text:hover {
-  border: 2px solid #a8a5a5;
-}
-
-.current-month:hover {
+.bright:hover {
   border: 2px solid #a8a5a5;
 }
 .today {

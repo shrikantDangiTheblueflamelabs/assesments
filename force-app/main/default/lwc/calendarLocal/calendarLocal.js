@@ -2,26 +2,36 @@ import { LightningElement, track } from "lwc";
 // import EventModal from "c/eventModal";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 
+const WEEK_DAYS_SHORT = "SU MO TU WE TH FR SA".split(" ");
+const WEEK_DAYS_LONG =
+  "Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
+
+const MONTHS_SHORT = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(
+  " "
+);
+
+// {
+//   key, value, year, month, date, class, day
+// }
+
 export default class Calendar extends LightningElement {
+  weekDays = WEEK_DAYS_SHORT;
+
   @track
-  calendarDates = [];
+  calendarEntries = [];
+
   @track currentTime;
 
-  weekDays = "SU MO TU WE TH FR SA".split(" ");
-  weekDaysLong =
-    "Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
-
   today = new Date();
-  calendarStartDate = this.today;
   todayDateDisplay = this.today.toDateString();
   dateSelected = this.today;
-  dateSelectedElement;
-  dayDateDisplay;
+  selectedDayAndDateDisplay;
 
-  monthDisplay = this.calendarStartDate.toLocaleString("default", {
-    month: "long"
-  });
-  yearDisplay = this.calendarStartDate.getFullYear();
+  selectedCalendarElement;
+
+  chooseDate = true;
+  chooseMonth = false;
+  chooseYear = false;
 
   showToast(message) {
     if (!message) return;
@@ -39,21 +49,19 @@ export default class Calendar extends LightningElement {
     this.interval = setInterval(() => {
       this.keepTime();
     }, 100);
-    this.calendarStartDate = new Date(
-      this.today.getFullYear(),
-      this.today.getMonth(),
-      1
-    );
-    this.setDayDateDisplay();
-    this.fillDates();
+
+    this.calendarStartDate = this.today;
+
+    this.setSelectedDayDateDisplay();
+    this.fillCalendarEntries();
   }
 
-  setDayDateDisplay() {
+  setSelectedDayDateDisplay() {
     if (this.dateSelected.toDateString() === this.today.toDateString()) {
-      this.dayDateDisplay = "Today";
+      this.selectedDayAndDateDisplay = "Today";
     } else {
-      let day = this.weekDaysLong[this.dateSelected.getDay()];
-      this.dayDateDisplay = `${day} ${this.dateSelected.getDate()}`;
+      let day = WEEK_DAYS_LONG[this.dateSelected.getDay()];
+      this.selectedDayAndDateDisplay = `${day} ${this.dateSelected.getDate()}`;
     }
   }
 
@@ -70,30 +78,38 @@ export default class Calendar extends LightningElement {
     return value < 10 ? `0${value}` : value;
   }
 
-  setDisplayMonthYear() {
-    this.monthDisplay = this.calendarStartDate.toLocaleString("default", {
+  setCalendarHeaderText() {
+    let calendarMonth = this.calendarStartDate.toLocaleString("default", {
       month: "long"
     });
-    this.yearDisplay = this.calendarStartDate.getFullYear();
+    let calendarYear = Number(this.calendarStartDate.getFullYear());
+
+    if (this.chooseDate) {
+      this.headerText = `${calendarMonth} ${calendarYear}`;
+    } else if (this.chooseMonth) {
+      this.headerText = `${calendarYear}`;
+    } else if (this.chooseYear) {
+      this.headerText = `${calendarYear}-${calendarYear+9}`;
+    }
   }
 
-  genMonthWithTails(month, year) {
+  generateDatesWithTails(forMonth, forYear) {
     let dates = [];
     let tailLeft = [];
     let tailRight = [];
     // Create a date object for the first day of the given month and year
-    const firstOfMonth = new Date(year, month - 1, 1);
-    let currentDate = new Date(year, month - 1, 1);
+    const firstOfMonth = new Date(forYear, forMonth, 1);
+    let currentDate = new Date(forYear, forMonth, 1);
 
     let dateObject = (dt) => {
       return {
         date: dt.getDate(),
         key: dt.toString(),
-        day: this.weekDays[dt.getDay()],
+        day: WEEK_DAYS_SHORT[dt.getDay()],
         class:
           dt.toDateString() === this.today.toDateString()
-            ? "current-month today selected"
-            : "current-month",
+            ? "bright today selected"
+            : "bright",
         fulldate: new Date(dt)
       };
     };
@@ -106,7 +122,7 @@ export default class Calendar extends LightningElement {
 
     // Loop through the month
     currentDate = firstOfMonth;
-    while (currentDate.getMonth() === month - 1) {
+    while (currentDate.getMonth() === forMonth) {
       dates.push(dateObject(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -120,28 +136,57 @@ export default class Calendar extends LightningElement {
     return [...tailLeft, ...dates, ...tailRight];
   }
 
-  fillDates() {
-    this.calendarDates = this.genMonthWithTails(
-      this.calendarStartDate.getMonth() + 1,
-      this.calendarStartDate.getFullYear()
-    );
-    this.setDisplayMonthYear();
-  }
-  genNextMonth() {
-    this.calendarStartDate.setMonth(this.calendarStartDate.getMonth() + 1);
-    this.fillDates();
-  }
+  fillCalendarEntries() {
+    if (this.chooseDate) {
+      this.calendarEntries = this.generateDatesWithTails(
+        this.calendarStartDate.getMonth(),
+        this.calendarStartDate.getFullYear()
+      );
+    } else if (this.chooseMonth) {
+      this.calendarEntries = MONTHS_SHORT.map((element, index) => ({
+        year: this.calendarStartDate.getFullYear(),
+        month: index,
+        key: element,
+        value: element,
+        class:
+          this.calendarStartDate.getFullYear() === this.today.getFullYear() &&
+          index === this.today.getMonth()
+            ? "bright today"
+            : "bright"
+      }));
+    } else if (this.chooseYear) {
+      let entries = [];
+      for (
+        let year = this.calendarStartDate.getFullYear();
+        year < this.calendarStartDate.getFullYear() + 12;
+        year++
+      ) {
+        entries.push({
+          year,
+          month: 1,
+          key: year,
+          value: year,
+          class:
+            this.calendarStartDate.getFullYear() === this.today.getFullYear()
+              ? "bright today"
+              : "bright"
+        });
+      }
+      this.calendarEntries = entries;
+    }
 
-  genPrevMonth() {
-    this.calendarStartDate.setMonth(this.calendarStartDate.getMonth() - 1);
-    this.fillDates();
+    this.setCalendarHeaderText();
   }
 
   setSelectionClass(toElement) {
-    if (this.dateSelectedElement) {
-      this.dateSelectedElement.setAttribute(
+    if (!this.chooseDate) return;
+
+    if (this.selectedCalendarElement) {
+      this.selectedCalendarElement.setAttribute(
         "class",
-        this.dateSelectedElement.getAttribute("class").replace("selected", "")
+        this.selectedCalendarElement
+          .getAttribute("class")
+          .replace("selected", "")
       );
     }
     if (!toElement.getAttribute("class").includes("selected")) {
@@ -150,13 +195,13 @@ export default class Calendar extends LightningElement {
         toElement.getAttribute("class") + " selected"
       );
     }
-    this.dateSelectedElement = toElement;
+    this.selectedCalendarElement = toElement;
   }
 
   async handleDateDblClick(event) {
     this.dateSelected = new Date(event.target.dataset.date);
     this.setSelectionClass(event.target);
-    this.setDayDateDisplay();
+    this.setSelectedDayDateDisplay();
     // const result = await EventModal.open({
     //   size: "medium",
     //   description: "Accessible description of modal's purpose",
@@ -170,17 +215,83 @@ export default class Calendar extends LightningElement {
     // }
   }
 
-  handleDateClick(event) {
-    this.dateSelected = new Date(event.target.dataset.date);
+  handleCalendarEntryClick(event) {
+    if (this.chooseDate) {
+      this.dateSelected = new Date(event.target.dataset.date);
+      this.setSelectionClass(event.target);
+      this.setSelectedDayDateDisplay();
+      return;
+    } else if (this.chooseMonth) {
+      this.calendarStartDate = new Date(
+        event.target.dataset.year,
+        event.target.dataset.month,
+        1
+      );
+      this.chooseMonth = false;
+      this.chooseDate = true;
+    } else if (this.chooseYear) {
+      this.calendarStartDate = new Date(event.target.dataset.year, 0, 1);
+      this.chooseYear = false;
+      this.chooseMonth = true;
+    }
+
+    this.fillCalendarEntries();
+
+  }
+
+  chooseMonthYear(event) {
+    if (this.chooseDate) {
+      this.calendarStartDate = new Date(
+        this.calendarStartDate.getFullYear(),
+        0,
+        1
+      );
+      this.chooseMonth = true;
+      this.chooseDate = false;
+
+    } else if (this.chooseMonth) {
+      this.calendarStartDate = new Date(
+        Math.floor(this.calendarStartDate.getFullYear() / 10) * 10,
+        0,
+        1
+      );
+      this.chooseMonth = false;
+      this.chooseYear = true;
+
+    } 
     this.setSelectionClass(event.target);
-    this.setDayDateDisplay();
+    this.fillCalendarEntries();
   }
 
-  chooseMonth(event) {
-    console.log("showing months");
+  handleUp(event) {
+    if (this.chooseDate) {
+      this.calendarStartDate.setMonth(this.calendarStartDate.getMonth() - 1);
+    } else if (this.chooseMonth) {
+      this.calendarStartDate.setFullYear(
+        this.calendarStartDate.getFullYear() - 1
+      );
+    } else if (this.chooseYear) {
+      this.calendarStartDate.setFullYear(
+        this.calendarStartDate.getFullYear() - 10
+      );
+    }
+
+    this.fillCalendarEntries();
   }
 
-  handleUp(event) {}
+  handleDown(event) {
+    if (this.chooseDate) {
+      this.calendarStartDate.setMonth(this.calendarStartDate.getMonth() + 1);
+    } else if (this.chooseMonth) {
+      this.calendarStartDate.setFullYear(
+        this.calendarStartDate.getFullYear() + 1
+      );
+    } else if (this.chooseYear) {
+      this.calendarStartDate.setFullYear(
+        this.calendarStartDate.getFullYear() + 10
+      );
+    }
 
-  handleDown(event) {}
+    this.fillCalendarEntries();
+  }
 }
